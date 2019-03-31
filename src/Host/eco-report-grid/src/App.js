@@ -227,11 +227,18 @@ class App extends Component {
       ])
       .then(
         axios.spread((reports, locations) => {
-          this.setState({
-            reports: [...reports.data],
-            locations: [...locations.data],
-            isLoading: false
-          });
+          if(reports.data.length)
+          {
+            this.setState({
+              reports: [...reports.data],
+              locations: [...locations.data],
+              isLoading: false
+            });
+          }
+          else
+          {
+            alert("No Data found for this id");
+          }
         })
       );
   }
@@ -300,6 +307,7 @@ class App extends Component {
    * @param {Event} event
    */
   handleSubmit(event) {
+    
     const data = qs.stringify({
       branchId: this.state.branchId,
       locationId: this.state.locationId === 0 ? null : this.state.locationId,
@@ -307,6 +315,7 @@ class App extends Component {
       toDate: moment(this.state.toDate).format("DD/MM/YYYY")
     });
     ApiClient.get(`/Company/data?${data}`).then(json => {
+      console.log("JSON Data is: ", json);
       this.setState({
         reports: [...json.data]
       });
@@ -320,6 +329,7 @@ class App extends Component {
    * @param {string} Sno
    */
   loadEditForm(locationId, branchId, Sno) {
+    console.log("Loading Modal...");
     ApiClient.get(
       "/Company/GetData?" +
         qs.stringify({
@@ -353,6 +363,7 @@ class App extends Component {
   }
 
   render() {
+
     const tables = this.state.reports.map((report, index) =>
       createTable(report, index, this.toggle)
     );
